@@ -24,7 +24,7 @@ habilitado para `GET`, `POST` e `OPTIONS`. Os dados são persistidos no MySQL.
 | Gabriel Meneghetti Zanardo | 23000471 |
 | Virgilio Pedro Batista Junior | 23000383 |
 
-**Link do repositório no GitHub:** `[PREENCHER: https://github.com/usuario/repositorio]`
+**Link do repositório no GitHub:** https://github.com/LuisGBF/avaliacao-devops-cadastro-livros
 
 ---
 
