@@ -20,9 +20,9 @@ habilitado para `GET`, `POST` e `OPTIONS`. Os dados são persistidos no MySQL.
 
 | Nome completo | RA |
 |---------------|----|
-| `[Luis Gabriel Brito Felicio]` | `[23000698]` |
-| `[Gabriel Meneghetti Zanardo]` | `[23000471]` |
-| `[Virgilio Pedro Batista Junior]` | `[23000383]` |
+| Luis Gabriel Brito Felicio | 23000698 |
+| Gabriel Meneghetti Zanardo | 23000471 |
+| Virgilio Pedro Batista Junior | 23000383 |
 
 **Link do repositório no GitHub:** `[PREENCHER: https://github.com/usuario/repositorio]`
 
