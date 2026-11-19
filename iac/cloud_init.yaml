@@ -1,0 +1,48 @@
+#cloud-config
+# Preparação das VMs: usuário, SSH e Docker já instalado para o Ansible.
+hostname: ${hostname}
+manage_etc_hosts: true
+preserve_hostname: false
+
+users:
+  - name: ${vm_user}
+    sudo: "ALL=(ALL) NOPASSWD:ALL"
+    groups: [sudo, docker]
+    shell: /bin/bash
+    lock_passwd: ${vm_password_hash == "" ? "true" : "false"}
+%{ if vm_password_hash != "" }
+    passwd: "${vm_password_hash}"
+%{ endif }
+    ssh_authorized_keys:
+      - ${ssh_public_key}
+
+ssh_pwauth: false
+disable_root: true
+
+package_update: true
+package_upgrade: false
+
+packages:
+  - ca-certificates
+  - curl
+  - gnupg
+  - jq
+  - docker.io
+  - docker-compose-v2
+
+write_files:
+  - path: /etc/docker/daemon.json
+    owner: root:root
+    permissions: "0644"
+    content: |
+      {
+        "log-driver": "json-file",
+        "log-opts": { "max-size": "10m", "max-file": "3" }
+      }
+
+runcmd:
+  - systemctl enable --now docker
+  - usermod -aG docker ${vm_user}
+  - docker --version
+
+final_message: "VM ${hostname} pronta: Docker instalado, usuário ${vm_user} configurado."

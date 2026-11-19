@@ -1,0 +1,58 @@
+# Orquestração local para demonstração das duas VMs em uma só máquina.
+# Em produção, a VM1 roda apenas `app/` e a VM2 roda `api/docker-compose.yml`.
+services:
+  db:
+    image: mysql:8.0
+    container_name: livraria-db
+    restart: unless-stopped
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpass}
+      MYSQL_DATABASE: ${DB_NAME:-livraria}
+      MYSQL_USER: ${DB_USER:-livraria}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-livraria123}
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "127.0.0.1:3307:3306"
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 30s
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: livraria-api
+    restart: unless-stopped
+    environment:
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-livraria}
+      DB_USER: ${DB_USER:-livraria}
+      DB_PASSWORD: ${DB_PASSWORD:-livraria123}
+      CORS_ORIGIN: ${CORS_ORIGIN:-*}
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: livraria-web
+    restart: unless-stopped
+    ports:
+      - "8088:80"
+    depends_on:
+      api:
+        condition: service_started
+
+volumes:
+  db_data:

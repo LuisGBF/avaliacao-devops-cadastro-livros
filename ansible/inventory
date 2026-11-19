@@ -1,0 +1,16 @@
+[web]
+# VM1 - aplicação web (nginx + HTML)
+vm1-web ansible_host=192.168.122.53 ansible_user=devops
+
+[api]
+# VM2 - API Node.js + MySQL
+vm2-api ansible_host=192.168.122.180 ansible_user=devops
+
+[all:vars]
+ansible_python_interpreter=/usr/bin/python3
+ansible_ssh_common_args=-o StrictHostKeyChecking=accept-new
+
+# IP usado pelo navegador para chamar a API a partir da VM1.
+# Ajuste se o `tofu output vm_ips` retornar outro endereço.
+api_public_host=192.168.122.180
+api_public_port=3000

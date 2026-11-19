@@ -1,0 +1,118 @@
+---
+# Playbook de implantação - Cadastro de Livros
+# Executa na VM1 (web) e na VM2 (API + MySQL).
+
+- name: "VM1 - implantar aplicação web em container Docker"
+  hosts: web
+  become: true
+  vars:
+    app_dir: /opt/cadastro-livros/app
+    web_container: livraria-web
+  tasks:
+    - name: Garantir que o Docker está ativo
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Criar diretório da aplicação
+      ansible.builtin.file:
+        path: "{{ app_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: Copiar arquivos estáticos da aplicação
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../app/"
+        dest: "{{ app_dir }}/"
+        mode: preserve
+
+    - name: Gerar config.js apontando para a API na VM2
+      ansible.builtin.template:
+        src: "{{ playbook_dir }}/templates/config.js.j2"
+        dest: "{{ app_dir }}/config.js"
+        mode: "0644"
+
+    - name: Construir a imagem da aplicação web
+      ansible.builtin.command:
+        cmd: docker build -t cadastro-livros-web:latest .
+        chdir: "{{ app_dir }}"
+      changed_when: true
+
+    - name: Remover container anterior (se existir)
+      ansible.builtin.shell: |
+        docker rm -f {{ web_container }} 2>/dev/null || true
+      changed_when: false
+
+    - name: Subir o container da aplicação web
+      ansible.builtin.command:
+        argv:
+          - docker
+          - run
+          - -d
+          - --name
+          - "{{ web_container }}"
+          - --restart
+          - unless-stopped
+          - -p
+          - "80:80"
+          - cadastro-livros-web:latest
+      changed_when: true
+
+    - name: Aguardar a aplicação web responder
+      ansible.builtin.uri:
+        url: "http://127.0.0.1/"
+        status_code: 200
+      register: web_health
+      until: web_health.status == 200
+      retries: 12
+      delay: 3
+
+- name: "VM2 - implantar API Node.js e MySQL em containers Docker"
+  hosts: api
+  become: true
+  vars:
+    api_dir: /opt/cadastro-livros/api
+  tasks:
+    - name: Garantir que o Docker está ativo
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Criar diretório da API
+      ansible.builtin.file:
+        path: "{{ api_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: Copiar código da API
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../api/"
+        dest: "{{ api_dir }}/"
+        mode: preserve
+
+    - name: Gerar arquivo .env da API
+      ansible.builtin.template:
+        src: "{{ playbook_dir }}/templates/api.env.j2"
+        dest: "{{ api_dir }}/.env"
+        mode: "0600"
+
+    - name: Subir API e MySQL com Docker Compose
+      ansible.builtin.command:
+        cmd: docker compose up -d --build --remove-orphans
+        chdir: "{{ api_dir }}"
+      changed_when: true
+
+    - name: Aguardar a API responder
+      ansible.builtin.uri:
+        url: "http://127.0.0.1:3000/health"
+        status_code: 200
+      register: api_health
+      until: api_health.status == 200
+      retries: 20
+      delay: 5
+
+    - name: Exibir endereço da API
+      ansible.builtin.debug:
+        msg: "API disponível em http://{{ api_public_host }}:{{ api_public_port }}"

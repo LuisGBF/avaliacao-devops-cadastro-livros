@@ -1,0 +1,18 @@
+{
+  "name": "cadastro-livros-api",
+  "version": "1.0.0",
+  "description": "API REST de cadastro de livros (Node.js + MySQL) - Avaliação Prática de DevOps",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "mysql2": "^3.11.5"
+  }
+}

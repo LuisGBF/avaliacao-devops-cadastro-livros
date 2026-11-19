@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Livraria — Cadastro de Livros</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">📚</span>
+      <div>
+        <h1>Livraria</h1>
+        <p>Cadastro de livros</p>
+      </div>
+    </div>
+    <nav class="tabs" aria-label="Navegação principal">
+      <button class="tab is-active" type="button" data-view="cadastro">Cadastrar</button>
+      <button class="tab" type="button" data-view="listagem">Listar todos os livros</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section id="view-cadastro" class="card" aria-labelledby="titulo-cadastro">
+      <h2 id="titulo-cadastro">Novo livro</h2>
+      <p class="muted">Preencha os dados abaixo para cadastrar um livro no catálogo.</p>
+
+      <form id="form-livro" novalidate>
+        <div class="field">
+          <label for="titulo">Título do livro</label>
+          <input id="titulo" name="titulo" type="text" maxlength="255" autocomplete="off" required
+                 placeholder="Ex.: Dom Casmurro" />
+        </div>
+
+        <div class="field">
+          <label for="autor">Autor</label>
+          <input id="autor" name="autor" type="text" maxlength="255" autocomplete="off" required
+                 placeholder="Ex.: Machado de Assis" />
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="preco">Preço (R$)</label>
+            <input id="preco" name="preco" type="number" step="0.01" min="0" required
+                   placeholder="39.90" />
+          </div>
+
+          <div class="field">
+            <label for="quantidade_estoque">Quantidade em estoque</label>
+            <input id="quantidade_estoque" name="quantidade_estoque" type="number" step="1" min="0" required
+                   placeholder="10" />
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-primary" type="submit" id="btn-cadastrar">Cadastrar livro</button>
+          <button class="btn btn-ghost" type="reset">Limpar</button>
+        </div>
+
+        <p id="form-feedback" class="feedback" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section id="view-listagem" class="card is-hidden" aria-labelledby="titulo-listagem">
+      <div class="section-head">
+        <div>
+          <h2 id="titulo-listagem">Livros cadastrados</h2>
+          <p class="muted">Registros persistidos no MySQL da VM2.</p>
+        </div>
+        <button class="btn btn-ghost" type="button" id="btn-atualizar">Atualizar</button>
+      </div>
+
+      <p id="lista-feedback" class="feedback" role="status" aria-live="polite"></p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Título</th>
+              <th scope="col">Autor</th>
+              <th scope="col">Preço</th>
+              <th scope="col">Estoque</th>
+            </tr>
+          </thead>
+          <tbody id="tabela-livros">
+            <tr><td colspan="5" class="empty">Nenhum livro carregado.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="muted total" id="total-livros"></p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>VM1 — aplicação web</span>
+    <span id="api-status" class="status">API: verificando…</span>
+  </footer>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
